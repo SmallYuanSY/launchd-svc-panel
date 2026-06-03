@@ -1,0 +1,46 @@
+{
+  "_comment": "Copy this file to services.json and edit for your machine. Paths support ~ and $ENV. The panel auto-detects your UID, so no uid field is needed.",
+  "panel": {
+    "host": "127.0.0.1",
+    "port": 8990,
+    "self_label": "local.launchd-svc-panel"
+  },
+  "services": [
+    {
+      "name": "my-web-app",
+      "desc": "Example: an HTTP service (health = GET returns < 500)",
+      "label": "local.my-web-app",
+      "plist": "~/Library/LaunchAgents/local.my-web-app.plist",
+      "logs": { "out": "~/Library/Logs/my-web-app.log", "err": "~/Library/Logs/my-web-app.err.log" },
+      "health": { "kind": "http", "url": "http://127.0.0.1:3000/" },
+      "readonly": false
+    },
+    {
+      "name": "my-daemon",
+      "desc": "Example: a TCP service (health = can we open the port)",
+      "label": "local.my-daemon",
+      "plist": "~/Library/LaunchAgents/local.my-daemon.plist",
+      "logs": { "out": "~/Library/Logs/my-daemon.log", "err": "~/Library/Logs/my-daemon.err.log" },
+      "health": { "kind": "tcp", "host": "127.0.0.1", "port": 5432 },
+      "readonly": false
+    },
+    {
+      "name": "my-tunnel",
+      "desc": "Example: a cloudflared tunnel (health = HA connections > 0)",
+      "label": "local.cloudflared.my-tunnel",
+      "plist": "~/Library/LaunchAgents/local.cloudflared.my-tunnel.plist",
+      "logs": { "out": "~/Library/Logs/my-tunnel.log", "err": "~/Library/Logs/my-tunnel.log" },
+      "health": { "kind": "cloudflared", "url": "http://127.0.0.1:20241/metrics" },
+      "readonly": false
+    },
+    {
+      "name": "launchd-svc-panel",
+      "desc": "This panel itself (read-only; control via ./panelctl)",
+      "label": "local.launchd-svc-panel",
+      "plist": "~/Library/LaunchAgents/local.launchd-svc-panel.plist",
+      "logs": { "out": "~/launchd-svc-panel/panel.log", "err": "~/launchd-svc-panel/panel.log" },
+      "health": { "kind": "http", "url": "http://127.0.0.1:8990/api/ping" },
+      "readonly": true
+    }
+  ]
+}

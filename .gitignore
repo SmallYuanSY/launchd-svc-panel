@@ -1,0 +1,11 @@
+# 本機實際設定（從 services.example.json 複製後編輯）
+services.json
+# 執行期產物
+panel.log
+__pycache__/
+*.pyc
+.DS_Store
+
+# 私人 runbook（含真實 infra：tunnel UUID / 網域 / 主機路徑），不公開
+CLAUDE.md
+SPEC.md

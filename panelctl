@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+# launchd-svc-panel — 面板自身的入口控制檔。
+# 面板 UI 只唯讀顯示自己;要啟停/重啟面板本身一律走這支。
+# 用法: ./panelctl {install|start|stop|restart|status|logs}
+#
+# 設計:面板的 label 從 services.json 的 panel.self_label 讀取(單一事實來源);
+#       install 時「動態生成」LaunchAgent plist(偵測安裝目錄與 python),不寫死路徑。
+set -uo pipefail
+
+HERE="$(cd "$(dirname "$0")" && pwd)"
+CONFIG="$HERE/services.json"
+DOMAIN="gui/$(id -u)"
+LOG="$HERE/panel.log"
+
+if [ ! -f "$CONFIG" ]; then
+  echo "找不到 $CONFIG —— 請先 cp services.example.json services.json 並編輯" >&2
+  exit 1
+fi
+
+PYTHON="$(command -v python3 || echo /usr/bin/python3)"
+LABEL="$("$PYTHON" -c "import json;print(json.load(open('$CONFIG'))['panel'].get('self_label','local.launchd-svc-panel'))")"
+PORT="$("$PYTHON" -c "import json;print(json.load(open('$CONFIG'))['panel'].get('port',8990))")"
+PLIST_DST="$HOME/Library/LaunchAgents/$LABEL.plist"
+URL="http://localhost:$PORT"
+
+gen_plist() {
+  # 依目前安裝位置動態產生 plist
+  cat > "$PLIST_DST" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>$LABEL</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>$PYTHON</string>
+        <string>$HERE/server.py</string>
+    </array>
+    <key>WorkingDirectory</key>
+    <string>$HERE</string>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>KeepAlive</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>$LOG</string>
+    <key>StandardErrorPath</key>
+    <string>$LOG</string>
+</dict>
+</plist>
+PLIST
+}
+
+case "${1:-}" in
+  install)
+    gen_plist && echo "已生成 plist → $PLIST_DST"
+    launchctl bootstrap "$DOMAIN" "$PLIST_DST" 2>/dev/null \
+      && echo "已載入並啟動 → $URL" \
+      || { launchctl kickstart "$DOMAIN/$LABEL" && echo "已在運行 → $URL"; }
+    ;;
+  start)
+    launchctl bootstrap "$DOMAIN" "$PLIST_DST" 2>/dev/null \
+      && echo "已啟動 → $URL" \
+      || { launchctl kickstart "$DOMAIN/$LABEL" && echo "已在運行 → $URL"; }
+    ;;
+  stop)
+    launchctl bootout "$DOMAIN/$LABEL" && echo "已停止"
+    ;;
+  restart)
+    launchctl kickstart -k "$DOMAIN/$LABEL" 2>/dev/null && echo "已重啟 → $URL" \
+      || { launchctl bootstrap "$DOMAIN" "$PLIST_DST" && echo "已重新載入 → $URL"; }
+    ;;
+  status)
+    if launchctl print "$DOMAIN/$LABEL" >/dev/null 2>&1; then
+      launchctl print "$DOMAIN/$LABEL" | grep -E '^\s*(state|pid) =' | sed 's/^[[:space:]]*/  /'
+      echo "  url = $URL"
+    else
+      echo "  未載入 (用 ./panelctl install 或 start)"
+    fi
+    ;;
+  logs)
+    tail -n "${2:-100}" "$LOG" 2>/dev/null || echo "(無 log: $LOG)"
+    ;;
+  *)
+    echo "用法: ./panelctl {install|start|stop|restart|status|logs}"
+    exit 1
+    ;;
+esac

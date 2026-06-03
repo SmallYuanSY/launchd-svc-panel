@@ -24,11 +24,13 @@ header {
 }
 h1 { font-size: 17px; margin: 0; font-weight: 600; }
 .meta { display: flex; align-items: center; gap: 12px; color: var(--muted); }
-#refresh {
+#refresh, #lang-toggle {
   background: var(--panel); color: var(--text); border: 1px solid var(--border);
-  border-radius: 6px; width: 30px; height: 30px; cursor: pointer; font-size: 15px;
+  border-radius: 6px; height: 30px; cursor: pointer; font-size: 15px;
 }
-#refresh:hover { border-color: var(--accent); }
+#refresh { width: 30px; }
+#lang-toggle { min-width: 38px; padding: 0 9px; font-size: 13px; font-weight: 600; }
+#refresh:hover, #lang-toggle:hover { border-color: var(--accent); }
 main { padding: 24px; max-width: 920px; margin: 0 auto; }
 table { width: 100%; border-collapse: collapse; background: var(--panel);
   border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }

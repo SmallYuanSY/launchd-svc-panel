@@ -1,5 +1,7 @@
 # launchd-svc-panel
 
+**English** | [繁體中文](README.zh-Hant.md)
+
 A tiny, **zero-dependency** local web panel to view and control your macOS
 `launchd` services — status, start/stop/restart, live logs, and health checks —
 all from one page at `http://localhost:8990`.

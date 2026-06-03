@@ -1,17 +1,18 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hermes 服務控制台</title>
+  <title data-i18n="appTitle">launchd Service Panel</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
   <header>
-    <h1>Hermes 服務控制台</h1>
+    <h1 data-i18n="appTitle">launchd Service Panel</h1>
     <div class="meta">
       <span id="clock">—</span>
-      <button id="refresh" title="立即重整">↻</button>
+      <button id="lang-toggle" title="Switch language">中</button>
+      <button id="refresh" data-i18n-title="refreshTitle" title="Refresh now">↻</button>
     </div>
   </header>
 
@@ -19,27 +20,27 @@
     <table id="svc-table">
       <thead>
         <tr>
-          <th>服務</th>
-          <th>狀態</th>
-          <th>健康</th>
-          <th>PID</th>
-          <th>運行時間</th>
-          <th class="actions-col">操作</th>
+          <th data-i18n="colService">Service</th>
+          <th data-i18n="colStatus">Status</th>
+          <th data-i18n="colHealth">Health</th>
+          <th data-i18n="colPid">PID</th>
+          <th data-i18n="colUptime">Uptime</th>
+          <th class="actions-col" data-i18n="colActions">Actions</th>
         </tr>
       </thead>
       <tbody id="rows">
-        <tr><td colspan="6" class="empty">載入中…</td></tr>
+        <tr><td colspan="6" class="empty" data-i18n="loading">Loading…</td></tr>
       </tbody>
     </table>
-    <p class="hint">面板只綁 127.0.0.1。要啟停面板自己,請在終端機用 <code>./panelctl</code>。</p>
+    <p class="hint" id="hint"></p>
   </main>
 
-  <!-- log 抽屜 -->
+  <!-- log drawer -->
   <div id="log-overlay" class="hidden">
     <div id="log-box">
       <div id="log-head">
         <span id="log-title">log</span>
-        <label class="auto"><input type="checkbox" id="log-auto" checked> 自動更新</label>
+        <label class="auto"><input type="checkbox" id="log-auto" checked> <span data-i18n="autoRefresh">auto-refresh</span></label>
         <button id="log-close">✕</button>
       </div>
       <pre id="log-body">…</pre>

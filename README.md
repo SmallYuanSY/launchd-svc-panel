@@ -31,6 +31,24 @@ friendly way to see them all at a glance or restart one without remembering long
 labels and `launchctl` incantations. This is a thin, curated control surface
 over `launchctl` for **just the services you list**.
 
+## Design goals
+
+There are several mature launchd managers out there, and they're great if you want
+a full GUI to browse and edit every job on your system. This project aims at a
+different, smaller niche:
+
+- **Zero dependencies, no build step.** System `python3`, stdlib only. No
+  toolchain, no `npm`, no app to install — clone and `./panelctl install`.
+- **Config-as-code.** Your services live in one small `services.json`, not a GUI
+  you click through. Diff it, version it, copy it to another Mac.
+- **Curated, not exhaustive.** It shows only the handful of always-on services you
+  list — not every job `launchctl list` would dump.
+- **Automation / agent friendly.** Hand the folder to an AI agent (or a teammate):
+  "add my new service" is a few-line JSON edit, not a GUI walkthrough.
+
+In short: a minimal dashboard for a *known set* of services that you — or an
+agent — can configure in seconds.
+
 ## Requirements
 
 - macOS (uses `launchctl`)
@@ -39,7 +57,7 @@ over `launchctl` for **just the services you list**.
 ## Install
 
 ```bash
-git clone https://github.com/<you>/launchd-svc-panel.git ~/launchd-svc-panel
+git clone https://github.com/SmallYuanSY/launchd-svc-panel.git ~/launchd-svc-panel
 cd ~/launchd-svc-panel
 cp services.example.json services.json   # then edit for your machine
 ./panelctl install                        # generates the LaunchAgent + starts it
@@ -76,6 +94,13 @@ itself.
 
 After editing: `./panelctl restart`, then refresh the page. Only `services.json`
 changes — never `server.py`.
+
+### Adding a service with an AI agent
+
+Don't want to hand-write a plist? Hand this repo to any AI agent and tell it what
+you want kept alive (e.g. *"keep my app on port 3000 running and show it here"*).
+[`AGENTS.md`](AGENTS.md) is a step-by-step contract the agent follows to create the
+LaunchAgent and register it in the panel for you.
 
 ## Controlling the panel itself
 
